@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence
+             http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd"
+             version="2.1">
+
+  <persistence-unit name="BankingPU" transaction-type="JTA">
+
+    <!-- JNDI name of the datasource configured in WAS Admin Console -->
+    <jta-data-source>jdbc/BankingDS</jta-data-source>
+
+    <!-- JPA entity classes -->
+    <class>com.banking.model.Customer</class>
+    <class>com.banking.model.Account</class>
+    <class>com.banking.model.TransactionLog</class>
+
+    <exclude-unlisted-classes>true</exclude-unlisted-classes>
+
+    <properties>
+      <!-- WAS default JPA provider is OpenJPA -->
+      <!-- PostgreSQL dictionary for SQL generation -->
+      <property name="openjpa.jdbc.DBDictionary" value="postgres"/>
+
+      <!-- Schema target — must match banking schema created in PostgreSQL -->
+      <property name="openjpa.jdbc.Schema" value="banking"/>
+
+      <!-- DEV: auto-create/update tables. Change to 'validate' for production -->
+      <property name="openjpa.jdbc.SynchronizeMappings"
+                value="buildSchema(ForeignKeys=true)"/>
+
+      <!-- SQL logging — set to WARN in production -->
+      <property name="openjpa.Log"
+                value="DefaultLevel=WARN,Runtime=INFO,Tool=INFO,SQL=WARN"/>
+
+      <!-- Connection factory — use WAS-managed JTA connection -->
+      <property name="openjpa.ConnectionFactoryMode" value="managed"/>
+
+      <!-- Sequence strategy for IDs (PostgreSQL sequences) -->
+      <property name="openjpa.jdbc.SequenceFactory" value="native"/>
+
+      <!-- Cache settings -->
+      <property name="openjpa.DataCache" value="false"/>
+      <property name="openjpa.QueryCache" value="false"/>
+    </properties>
+
+  </persistence-unit>
+
+</persistence>

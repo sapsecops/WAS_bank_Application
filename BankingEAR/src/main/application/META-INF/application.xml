@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<application xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
+             http://xmlns.jcp.org/xml/ns/javaee/application_7.xsd"
+             version="7">
+
+  <display-name>BankingApp</display-name>
+  <description>Enterprise Banking Application on WebSphere 9.x with PostgreSQL</description>
+
+  <module>
+    <ejb>BankingEJB.jar</ejb>
+  </module>
+
+  <module>
+    <web>
+      <web-uri>BankingWeb.war</web-uri>
+      <context-root>/banking</context-root>
+    </web>
+  </module>
+
+  <library-directory>lib</library-directory>
+
+  <security-role>
+    <description>Standard bank customer</description>
+    <role-name>CUSTOMER</role-name>
+  </security-role>
+  <security-role>
+    <description>Bank teller / branch staff</description>
+    <role-name>TELLER</role-name>
+  </security-role>
+  <security-role>
+    <description>Branch / system administrator</description>
+    <role-name>ADMIN</role-name>
+  </security-role>
+  <security-role>
+    <description>Compliance and audit staff</description>
+    <role-name>AUDITOR</role-name>
+  </security-role>
+
+</application>

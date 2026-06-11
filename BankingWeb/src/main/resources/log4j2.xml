@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" monitorInterval="30">
+
+  <Properties>
+    <Property name="LOG_DIR">/opt/IBM/WebSphere/AppServer/profiles/BankingProfile/logs</Property>
+    <Property name="LOG_PATTERN">%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n</Property>
+  </Properties>
+
+  <Appenders>
+    <!-- Rolling file for application logs -->
+    <RollingFile name="AppLog"
+                 fileName="${LOG_DIR}/banking-app.log"
+                 filePattern="${LOG_DIR}/banking-app-%d{yyyy-MM-dd}-%i.log.gz">
+      <PatternLayout pattern="${LOG_PATTERN}"/>
+      <Policies>
+        <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+        <SizeBasedTriggeringPolicy size="20MB"/>
+      </Policies>
+      <DefaultRolloverStrategy max="10"/>
+    </RollingFile>
+
+    <!-- Separate rolling file for transaction audit -->
+    <RollingFile name="AuditLog"
+                 fileName="${LOG_DIR}/banking-audit.log"
+                 filePattern="${LOG_DIR}/banking-audit-%d{yyyy-MM-dd}.log.gz">
+      <PatternLayout pattern="%d{ISO8601} AUDIT [%t] %msg%n"/>
+      <Policies>
+        <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+      </Policies>
+      <DefaultRolloverStrategy max="90"/>
+    </RollingFile>
+
+    <!-- Console (useful in dev, remove in production) -->
+    <Console name="Console" target="SYSTEM_OUT">
+      <PatternLayout pattern="${LOG_PATTERN}"/>
+    </Console>
+  </Appenders>
+
+  <Loggers>
+    <!-- Application packages -->
+    <Logger name="com.banking" level="DEBUG" additivity="false">
+      <AppenderRef ref="AppLog"/>
+      <AppenderRef ref="Console"/>
+    </Logger>
+
+    <!-- Audit trail for transfers -->
+    <Logger name="com.banking.ejb.FundTransferBean" level="INFO" additivity="false">
+      <AppenderRef ref="AuditLog"/>
+      <AppenderRef ref="AppLog"/>
+    </Logger>
+
+    <!-- OpenJPA SQL — set to WARN in production -->
+    <Logger name="openjpa" level="WARN" additivity="false">
+      <AppenderRef ref="AppLog"/>
+    </Logger>
+
+    <!-- Root -->
+    <Root level="WARN">
+      <AppenderRef ref="AppLog"/>
+    </Root>
+  </Loggers>
+
+</Configuration>
