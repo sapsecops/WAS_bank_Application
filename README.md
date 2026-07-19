@@ -102,49 +102,8 @@ psql --version
 
 ---
 
-# Install PostgreSQL 15 (RHEL 8)
 
-Install PostgreSQL repository.
-
-```bash
-sudo dnf install -y \
-https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm
-```
-
-Disable the default module.
-
-```bash
-sudo dnf -qy module disable postgresql
-```
-
-Install PostgreSQL.
-
-```bash
-sudo dnf install -y postgresql15-server postgresql15
-```
-
-Initialize the database.
-
-```bash
-sudo /usr/pgsql-15/bin/postgresql-15-setup initdb
-```
-
-Enable PostgreSQL.
-
-```bash
-sudo systemctl enable postgresql-15
-sudo systemctl start postgresql-15
-```
-
-Verify.
-
-```bash
-systemctl status postgresql-15
-```
-
----
-
-# Create Database
+# Create Postgresql Database
 
 Become postgres.
 
