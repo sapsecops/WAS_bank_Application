@@ -1,4 +1,4 @@
-# NextGenBank — Phase 1 Setup Guide
+# NextGenBank — Setup Guide
 
 End-to-end, step-by-step instructions to get NextGenBank running on
 WebSphere Application Server (Traditional) against PostgreSQL, from a bare
