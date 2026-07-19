@@ -1,146 +1,408 @@
-# NextGenBank — Phase 1 (Sessions 1–12)
+# 🏦 NextGenBank Enterprise Banking Application
 
-A minimal, real banking web app — login, view balances, transfer funds — built
-to be deployed on WebSphere Application Server (Traditional) against a
-PostgreSQL backend. This is the Month 1 lab codebase from your training plan.
+---
 
-## What's included
+# Project Structure
 
 ```
 nextgenbank/
-├── pom.xml                         # Maven WAR build
-├── src/main/java/com/nextgenbank/
-│   ├── model/                      # Customer, Account, Transaction
-│   ├── dao/                        # CustomerDAO (auth), AccountDAO (balances/transfer)
-│   ├── servlet/                    # Login, Logout, Dashboard, Transfer, Health
-│   └── util/                       # JNDI DataSource lookup, password hashing
-├── src/main/webapp/
-│   ├── login.jsp
-│   ├── dashboard.jsp
-│   └── WEB-INF/web.xml             # servlet mappings + resource-ref
+│
+├── pom.xml
+│
+├── src/
+│   ├── main/
+│   │
+│   ├── java/com/nextgenbank/
+│   │      ├── model/
+│   │      ├── dao/
+│   │      ├── servlet/
+│   │      └── util/
+│   │
+│   └── webapp/
+│          ├── login.jsp
+│          ├── dashboard.jsp
+│          └── WEB-INF/
+│                 └── web.xml
+│
 ├── db/
-│   ├── schema.sql                  # PostgreSQL DDL
-│   └── seed.sql                    # 2 test customers, 3 accounts
-└── wsadmin/
-    ├── create_datasource.py        # Jython: creates JDBC provider + DataSource
-    └── deploy_app.py               # Jython: installs/starts the WAR
+│      ├── schema.sql
+│      └── seed.sql
+│
+├── wsadmin/
+│      ├── create_datasource.py
+│      └── deploy_app.py
+│
+└── README.md
 ```
 
-## 1. Set up PostgreSQL
+---
+
+# Technology Stack
+
+| Component | Version |
+|------------|----------|
+| Java | JDK 8 |
+| Maven | 3.6+ |
+| IBM WebSphere ND | 9.0.5.x |
+| PostgreSQL | 12+ |
+| JDBC Driver | PostgreSQL 42.7.x |
+| Build Type | WAR |
+
+---
+
+# Prerequisites
+
+Install the following software.
+
+| Software | Purpose |
+|-----------|----------|
+| Java JDK 8 | Compile application |
+| Maven | Build WAR |
+| PostgreSQL | Database |
+| IBM Installation Manager | Install WAS |
+| IBM WebSphere ND | Application Server |
+| PostgreSQL JDBC Driver | Database connectivity |
+
+Verify installation
+
+```bash
+java -version
+
+mvn -version
+
+psql --version
+```
+
+---
+
+# Install PostgreSQL
+
+Create database
 
 ```bash
 createdb nextgenbank
+```
+
+Load schema
+
+```bash
 psql -d nextgenbank -f db/schema.sql
+```
+
+Load sample data
+
+```bash
 psql -d nextgenbank -f db/seed.sql
 ```
 
-Test login credentials seeded: **jsmith / Passw0rd!** and **amiller / Passw0rd!**
-
-Create a dedicated app user instead of using postgres superuser, matching what
-`create_datasource.py` expects:
+Create application user
 
 ```sql
-CREATE USER nextgenbank_app WITH PASSWORD 'changeit';
-GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO nextgenbank_app;
-GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO nextgenbank_app;
+CREATE USER nextgenbank_app
+WITH PASSWORD 'changeit';
+
+GRANT ALL PRIVILEGES
+ON ALL TABLES
+IN SCHEMA public
+TO nextgenbank_app;
+
+GRANT USAGE,
+SELECT
+ON ALL SEQUENCES
+IN SCHEMA public
+TO nextgenbank_app;
 ```
 
-## 2. Build the WAR
+Verify data
+
+```bash
+psql -U nextgenbank_app \
+-d nextgenbank \
+-c "SELECT username FROM customers;"
+```
+
+Expected users
+
+```
+jsmith
+amiller
+```
+
+Password
+
+```
+Passw0rd!
+```
+
+---
+
+# Build the Application
+
+From project root
 
 ```bash
 mvn clean package
-# produces target/nextgenbank.war
 ```
 
-## 3. Get the PostgreSQL JDBC driver onto the WAS node
+WAR generated
 
-Download `postgresql-42.7.x.jar` from https://jdbc.postgresql.org/download/
-and copy it to a path on the WAS node, e.g.
-`/opt/IBM/WebSphere/jdbcdrivers/postgresql.jar` (this matches `DRIVER_PATH`
-in `create_datasource.py` — adjust if yours differs).
+```
+target/nextgenbank.war
+```
 
-## 4. Create the JDBC Provider + DataSource
+---
 
-**Option A — Admin Console (do this once manually so you feel the UI, per Session 7):**
-Resources → JDBC → JDBC Providers → New → PostgreSQL → then create a
-DataSource under it named `NextGenBankDS`, JNDI name `jdbc/nextgenbankDS`,
-and fill in host/port/db/user/password as custom properties. Test the
-connection before moving on.
+# Install PostgreSQL JDBC Driver
 
-**Option B — wsadmin (do this for Session 28's automation lab):**
+Download
+
+https://jdbc.postgresql.org/download/
+
+Copy to
+
+```
+/opt/IBM/WebSphere/jdbcdrivers/postgresql.jar
+```
+
+If your location differs, update
+
+```
+wsadmin/create_datasource.py
+```
+
+---
+
+# Configure WebSphere
+
+## Option 1 – Admin Console
+
+Navigate
+
+```
+Resources
+    ↓
+JDBC
+    ↓
+JDBC Providers
+```
+
+Create PostgreSQL JDBC Provider.
+
+Then create DataSource.
+
+Name
+
+```
+NextGenBankDS
+```
+
+JNDI
+
+```
+jdbc/nextgenbankDS
+```
+
+Database
+
+```
+nextgenbank
+```
+
+Host
+
+```
+localhost
+```
+
+Port
+
+```
+5432
+```
+
+Username
+
+```
+nextgenbank_app
+```
+
+Password
+
+```
+changeit
+```
+
+Test Connection
+
+Expected Result
+
+```
+Succeeded
+```
+
+---
+
+## Option 2 – wsadmin
 
 ```bash
-wsadmin.sh -lang jython -f wsadmin/create_datasource.py <nodeName> <serverName>
+wsadmin.sh \
+-lang jython \
+-f wsadmin/create_datasource.py \
+AppSrv01 \
+server1
 ```
 
-## 5. Deploy the app
+---
 
-**Option A — Admin Console:** Applications → New Application → Install and
-walk through the wizard, mapping the module to your server and binding
-`jdbc/nextgenbankDS`.
+# Deploy Application
 
-**Option B — wsadmin:**
+## Admin Console
+
+```
+Applications
+
+↓
+
+New Application
+
+↓
+
+Install
+
+↓
+
+Select nextgenbank.war
+
+↓
+
+Context Root
+
+/nextgenbank
+
+↓
+
+Map Resource Reference
+
+jdbc/nextgenbankDS
+
+↓
+
+Finish
+
+↓
+
+Save
+
+↓
+
+Start
+```
+
+---
+
+## wsadmin Deployment
 
 ```bash
-wsadmin.sh -lang jython -f wsadmin/deploy_app.py $(pwd)/target/nextgenbank.war <nodeName> <serverName>
+wsadmin.sh \
+-lang jython \
+-f wsadmin/deploy_app.py \
+target/nextgenbank.war \
+AppSrv01 \
+server1
 ```
 
-## 6. Test it
+---
+
+# Test Application
+
+Health API
 
 ```
-http://<host>:<port>/nextgenbank/login.jsp
-http://<host>:<port>/nextgenbank/api/health
+http://HOST:9080/nextgenbank/api/health
 ```
 
-Log in as `jsmith` / `Passw0rd!`, view balances, then transfer money between
-account IDs 1 and 2 (John Smith's checking → savings) and confirm the balance
-updates and a row appears in `transactions`.
+Expected
 
-## Where this goes next
+```json
+{
+  "status":"UP",
+  "db":"UP"
+}
+```
 
-- **Session 6:** intentionally add a conflicting JAR to reproduce a
-  classloader issue — the app is small enough that the effect is easy to see.
-- **Session 9:** break the `jdbc/nextgenbankDS` JNDI binding on purpose and
-  practice diagnosing the `NameNotFoundException`.
-- **Month 2:** the `AccountDAO.transfer()` local-transaction method gets
-  reimplemented as a container-managed EJB method, and the transfer flow
-  gets a JMS/MDB-driven async audit trail (Sessions 21–24, 27).
-- **Month 3:** this same WAR is what you'll performance-tune, break (GC/heap/
-  thread issues), and eventually migrate onto WebSphere Liberty (Session 44).
+Application
 
-## Security review — fixed after initial build
+```
+http://HOST:9080/nextgenbank/login.jsp
+```
 
-A quick self-review caught several real gaps, now fixed:
+Login
 
-- **Horizontal privilege escalation**: `TransferServlet` now calls
-  `AccountDAO.isOwnedBy()` before allowing a transfer, so a logged-in user
-  can no longer move funds out of an account they don't own just by
-  guessing an ID.
-- **CSRF**: a per-session token is issued at login and required on every
-  transfer POST.
-- **Session fixation**: the session is invalidated and recreated on
-  successful login.
-- **Direct JSP access**: `dashboard.jsp` moved to `WEB-INF/views/` (not
-  web-accessible) and is only reachable via `DashboardServlet`'s forward.
-- **Unhandled exception**: `TransferServlet` now catches
-  `IllegalArgumentException` (zero/negative amount) instead of letting it
-  surface as an HTTP 500.
-- **Cookie hardening**: `HttpOnly` enabled in `web.xml`; flip `secure` to
-  `true` once HTTPS is on (Session 15).
-- **Generic error page** added so stack traces never reach the browser.
+Username
 
-Also added: a **transaction history** view on the dashboard
-(`AccountDAO.recentTransactions()`), since a banking app that can't show you
-your own history isn't much of one.
+```
+jsmith
+```
 
-Still open, intentionally deferred to later phases: unsalted password
-hashing (fine for the lab; swap for bcrypt as a stretch exercise), no
-transfer amount/daily limits, no rate limiting on login attempts.
+Password
 
-## A note on the transfer logic
+```
+Passw0rd!
+```
 
-`AccountDAO.transfer()` uses `SELECT ... FOR UPDATE` plus a single JDBC
-connection's local transaction — it's atomic, but only within Postgres. It's
-intentionally *not* yet a "real" distributed transaction. Comparing this
-version to the EJB/XA version you'll build in Month 2 is one of the strongest
-concrete stories you can tell in a WebSphere interview.
+Test
+
+- Login
+- View balances
+- Transfer funds
+- Verify balances
+- Verify transaction history
+
+---
+
+# Default WebSphere Ports
+
+| Service | Port |
+|----------|------|
+| Admin Console HTTPS | 9043 |
+| Admin Console HTTP | 9060 |
+| Application HTTP | 9080 |
+| Application HTTPS | 9443 |
+| SOAP Connector | 8879 |
+| PostgreSQL | 5432 |
+
+---
+
+# Logging Locations
+
+```
+<AppSrv01>/logs/server1/SystemOut.log
+
+<AppSrv01>/logs/server1/SystemErr.log
+
+<AppSrv01>/logs/server1/startServer.log
+
+<AppSrv01>/logs/ffdc/
+```
+
+These are the primary logs used in production troubleshooting.
+
+---
+
+# Common Issues
+
+| Issue | Solution |
+|--------|----------|
+| Connection Refused | Verify PostgreSQL is running |
+| Authentication Failed | Verify database username/password |
+| NameNotFoundException | Check JNDI name |
+| Partial Start | Verify DataSource mapping |
+| Login Failure | Reload seed.sql |
+| Health API DOWN | Verify DataSource connectivity |
+| HTTP 500 | Check SystemOut.log and FFDC |
+
+---
+
+# License
+
+This project is intended for educational and enterprise middleware training purposes.
