@@ -2,68 +2,95 @@
 
 ---
 
-# Project Structure
+# Overview
 
-```
-nextgenbank/
-│
-├── pom.xml
-│
-├── src/
-│   ├── main/
-│   │
-│   ├── java/com/nextgenbank/
-│   │      ├── model/
-│   │      ├── dao/
-│   │      ├── servlet/
-│   │      └── util/
-│   │
-│   └── webapp/
-│          ├── login.jsp
-│          ├── dashboard.jsp
-│          └── WEB-INF/
-│                 └── web.xml
-│
-├── db/
-│      ├── schema.sql
-│      └── seed.sql
-│
-├── wsadmin/
-│      ├── create_datasource.py
-│      └── deploy_app.py
-│
-└── README.md
-```
+NextGenBank is an enterprise banking simulation project designed for learning IBM WebSphere Application Server administration in a production-like environment.
+
+The business functionality is intentionally simple:
+
+* User Login
+* Dashboard
+* View Account Balance
+* Transfer Money
+* Transaction History
+* Logout
+* Health Check API
+
+The primary objective is to understand enterprise middleware rather than Java development.
 
 ---
 
 # Technology Stack
 
-| Component | Version |
-|------------|----------|
-| Java | JDK 8 |
-| Maven | 3.6+ |
-| IBM WebSphere ND | 9.0.5.x |
-| PostgreSQL | 12+ |
-| JDBC Driver | PostgreSQL 42.7.x |
-| Build Type | WAR |
+| Component          | Version                  |
+| ------------------ | ------------------------ |
+| Operating System   | RHEL 8                   |
+| Java               | OpenJDK 8                |
+| Maven              | 3.6+                     |
+| Database           | PostgreSQL 15            |
+| Application Server | IBM WebSphere ND 9.0.5.x |
+| JDBC Driver        | PostgreSQL JDBC 42.7.x   |
+| Build Tool         | Maven                    |
+| Packaging          | WAR                      |
+
+---
+
+# Project Structure
+
+```text
+nextgenbank/
+├── pom.xml
+├── src/
+│   ├── main/
+│   │   ├── java/com/nextgenbank/
+│   │   │   ├── model/
+│   │   │   ├── dao/
+│   │   │   ├── servlet/
+│   │   │   └── util/
+│   │   └── webapp/
+│   │       ├── login.jsp
+│   │       ├── dashboard.jsp
+│   │       └── WEB-INF/
+│   │           └── web.xml
+├── db/
+│   ├── schema.sql
+│   └── seed.sql
+├── wsadmin/
+│   ├── create_datasource.py
+│   └── deploy_app.py
+└── README.md
+```
+
+---
+
+# Enterprise Environment
+
+```text
+OS              : RHEL 8
+Application User: wasadmin
+Group           : wasgroup
+
+Installation Manager
+/apps/IBM/InstallationManager
+
+Shared Resources
+/apps/IBM/IMShared
+
+WebSphere
+/apps/IBM/WebSphere/AppServer
+
+Profiles
+/apps/IBM/WebSphere/AppServer/profiles
+
+JDBC Drivers
+/apps/IBM/WebSphere/jdbcdrivers
+```
 
 ---
 
 # Prerequisites
 
-Install the following software.
-
-| Software | Purpose |
-|-----------|----------|
-| Java JDK 8 | Compile application |
-| Maven | Build WAR |
-| PostgreSQL | Database |
-| IBM Installation Manager | Install WAS |
-| IBM WebSphere ND | Application Server |
-| PostgreSQL JDBC Driver | Database connectivity |
-
-Verify installation
+Verify the following software is installed.
 
 ```bash
 java -version
@@ -75,110 +102,143 @@ psql --version
 
 ---
 
-# Install PostgreSQL
+# Install PostgreSQL 15 (RHEL 8)
 
-Create database
+Install PostgreSQL repository.
+
+```bash
+sudo dnf install -y \
+https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm
+```
+
+Disable the default module.
+
+```bash
+sudo dnf -qy module disable postgresql
+```
+
+Install PostgreSQL.
+
+```bash
+sudo dnf install -y postgresql15-server postgresql15
+```
+
+Initialize the database.
+
+```bash
+sudo /usr/pgsql-15/bin/postgresql-15-setup initdb
+```
+
+Enable PostgreSQL.
+
+```bash
+sudo systemctl enable postgresql-15
+sudo systemctl start postgresql-15
+```
+
+Verify.
+
+```bash
+systemctl status postgresql-15
+```
+
+---
+
+# Create Database
+
+Become postgres.
+
+```bash
+sudo su - postgres
+```
+
+Create database.
 
 ```bash
 createdb nextgenbank
 ```
 
-Load schema
+Open PostgreSQL.
 
 ```bash
-psql -d nextgenbank -f db/schema.sql
+psql
 ```
 
-Load sample data
-
-```bash
-psql -d nextgenbank -f db/seed.sql
-```
-
-Create application user
+Execute.
 
 ```sql
 CREATE USER nextgenbank_app
 WITH PASSWORD 'changeit';
 
-GRANT ALL PRIVILEGES
-ON ALL TABLES
-IN SCHEMA public
-TO nextgenbank_app;
-
-GRANT USAGE,
-SELECT
-ON ALL SEQUENCES
-IN SCHEMA public
-TO nextgenbank_app;
+ALTER DATABASE nextgenbank OWNER TO nextgenbank_app;
 ```
 
-Verify data
+Exit.
+
+```sql
+\q
+```
+
+Load schema.
 
 ```bash
-psql -U nextgenbank_app \
--d nextgenbank \
--c "SELECT username FROM customers;"
+psql -U postgres -d nextgenbank -f db/schema.sql
+
+psql -U postgres -d nextgenbank -f db/seed.sql
 ```
 
-Expected users
+Default users
 
-```
-jsmith
-amiller
-```
-
-Password
-
-```
-Passw0rd!
-```
+| Username | Password  |
+| -------- | --------- |
+| jsmith   | Passw0rd! |
+| amiller  | Passw0rd! |
 
 ---
 
-# Build the Application
+# Build Application
 
-From project root
+From the project directory.
 
 ```bash
 mvn clean package
 ```
 
-WAR generated
+Generated artifact
 
-```
+```text
 target/nextgenbank.war
 ```
 
 ---
 
-# Install PostgreSQL JDBC Driver
+# PostgreSQL JDBC Driver
 
-Download
+Download the PostgreSQL JDBC driver.
 
-https://jdbc.postgresql.org/download/
+Rename it to
+
+```text
+postgresql.jar
+```
 
 Copy to
 
-```
-/opt/IBM/WebSphere/jdbcdrivers/postgresql.jar
+```text
+/apps/IBM/WebSphere/jdbcdrivers/postgresql.jar
 ```
 
-If your location differs, update
-
-```
-wsadmin/create_datasource.py
-```
+Update `create_datasource.py` if you use a different location.
 
 ---
 
-# Configure WebSphere
+# Create JDBC Provider and DataSource
 
-## Option 1 – Admin Console
+## Admin Console
 
-Navigate
+Navigate to
 
-```
+```text
 Resources
     ↓
 JDBC
@@ -186,66 +246,34 @@ JDBC
 JDBC Providers
 ```
 
-Create PostgreSQL JDBC Provider.
+Create a PostgreSQL JDBC Provider.
 
-Then create DataSource.
+Create a DataSource with:
 
-Name
+| Property  | Value              |
+| --------- | ------------------ |
+| Name      | NextGenBankDS      |
+| JNDI Name | jdbc/nextgenbankDS |
+| Database  | nextgenbank        |
+| Host      | localhost          |
+| Port      | 5432               |
+| Username  | nextgenbank_app    |
+| Password  | changeit           |
 
-```
-NextGenBankDS
-```
+Click **Test Connection**.
 
-JNDI
+Expected result
 
-```
-jdbc/nextgenbankDS
-```
-
-Database
-
-```
-nextgenbank
-```
-
-Host
-
-```
-localhost
-```
-
-Port
-
-```
-5432
-```
-
-Username
-
-```
-nextgenbank_app
-```
-
-Password
-
-```
-changeit
-```
-
-Test Connection
-
-Expected Result
-
-```
+```text
 Succeeded
 ```
 
 ---
 
-## Option 2 – wsadmin
+## wsadmin
 
 ```bash
-wsadmin.sh \
+/apps/IBM/WebSphere/AppServer/profiles/Dmgr01/bin/wsadmin.sh \
 -lang jython \
 -f wsadmin/create_datasource.py \
 AppSrv01 \
@@ -258,7 +286,7 @@ server1
 
 ## Admin Console
 
-```
+```text
 Applications
 
 ↓
@@ -303,7 +331,7 @@ Start
 ## wsadmin Deployment
 
 ```bash
-wsadmin.sh \
+/apps/IBM/WebSphere/AppServer/profiles/Dmgr01/bin/wsadmin.sh \
 -lang jython \
 -f wsadmin/deploy_app.py \
 target/nextgenbank.war \
@@ -313,11 +341,11 @@ server1
 
 ---
 
-# Test Application
+# Test the Application
 
 Health API
 
-```
+```text
 http://HOST:9080/nextgenbank/api/health
 ```
 
@@ -330,79 +358,89 @@ Expected
 }
 ```
 
-Application
+Login Page
 
-```
+```text
 http://HOST:9080/nextgenbank/login.jsp
 ```
 
-Login
+Credentials
 
-Username
-
-```
-jsmith
-```
-
-Password
-
-```
-Passw0rd!
+```text
+Username : jsmith
+Password : Passw0rd!
 ```
 
-Test
+Verify
 
-- Login
-- View balances
-- Transfer funds
-- Verify balances
-- Verify transaction history
+* Login
+* Dashboard
+* Account Balances
+* Transfer Money
+* Transaction History
+* Logout
 
 ---
 
-# Default WebSphere Ports
+# WebSphere Log Files
 
-| Service | Port |
-|----------|------|
+```text
+/apps/IBM/WebSphere/AppServer/profiles/AppSrv01/logs/server1/SystemOut.log
+
+/apps/IBM/WebSphere/AppServer/profiles/AppSrv01/logs/server1/SystemErr.log
+
+/apps/IBM/WebSphere/AppServer/profiles/AppSrv01/logs/server1/startServer.log
+
+/apps/IBM/WebSphere/AppServer/profiles/AppSrv01/logs/ffdc/
+```
+
+---
+
+# Default Ports
+
+| Service             | Port |
+| ------------------- | ---- |
 | Admin Console HTTPS | 9043 |
-| Admin Console HTTP | 9060 |
-| Application HTTP | 9080 |
-| Application HTTPS | 9443 |
-| SOAP Connector | 8879 |
-| PostgreSQL | 5432 |
+| Admin Console HTTP  | 9060 |
+| SOAP Connector      | 8879 |
+| Application HTTP    | 9080 |
+| Application HTTPS   | 9443 |
+| PostgreSQL          | 5432 |
 
 ---
 
-# Logging Locations
+# Troubleshooting
 
-```
-<AppSrv01>/logs/server1/SystemOut.log
-
-<AppSrv01>/logs/server1/SystemErr.log
-
-<AppSrv01>/logs/server1/startServer.log
-
-<AppSrv01>/logs/ffdc/
-```
-
-These are the primary logs used in production troubleshooting.
+| Problem                    | Solution                                |
+| -------------------------- | --------------------------------------- |
+| Database Connection Failed | Verify PostgreSQL service is running    |
+| Authentication Failed      | Verify DataSource username/password     |
+| NameNotFoundException      | Verify JNDI name                        |
+| Partial Start              | Verify DataSource mapping               |
+| HTTP 500                   | Check SystemOut.log and FFDC            |
+| Login Failed               | Reload seed.sql                         |
+| Health API DOWN            | Restart server after DataSource changes |
 
 ---
 
-# Common Issues
+# Learning Objectives
 
-| Issue | Solution |
-|--------|----------|
-| Connection Refused | Verify PostgreSQL is running |
-| Authentication Failed | Verify database username/password |
-| NameNotFoundException | Check JNDI name |
-| Partial Start | Verify DataSource mapping |
-| Login Failure | Reload seed.sql |
-| Health API DOWN | Verify DataSource connectivity |
-| HTTP 500 | Check SystemOut.log and FFDC |
+This project teaches:
+
+* WebSphere Administration
+* WAR Deployment
+* Maven Build Process
+* PostgreSQL Integration
+* JDBC Providers
+* JNDI DataSources
+* wsadmin Automation
+* Session Management
+* Production Troubleshooting
+* FFDC Analysis
+* Log Analysis
+* Enterprise Banking Architecture
 
 ---
-
 # License
 
 This project is intended for educational and enterprise middleware training purposes.
