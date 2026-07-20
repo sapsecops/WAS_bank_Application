@@ -121,6 +121,38 @@ sudo systemctl enable postgresql-15
 sudo systemctl start postgresql-15
 systemctl status postgresql-15
 ```
+## Setup postgressql DB
+
+#### Allow Remote Host connect to DB
+1. Edit the "postgresql.conf" file in path "/var/lib/pgsql/data/postgresql.conf"
+```
+sudo vim /var/lib/pgsql/data/postgresql.conf
+```
+ADD these Under connection settings
+```
+listen_addresses = '*'
+```
+
+2. Edit the "pg_hba.conf" file in path "/var/lib/pgsql/data/pg_hba.conf"
+
+```
+sudo vim /var/lib/pgsql/data/pg_hba.conf
+```
+Edit IPV4 Local Connection Method from ident to md5 these lines 
+```
+# IPv4 local connections:
+host    all             all             127.0.0.1/32            md5
+```
+ADD these lines 
+```
+# Allow remote user connections from a single IP
+host    all             all             0.0.0.0/0          md5
+```
+Restart postgressql DB
+```
+sudo systemctl restart postgresql
+```
+
 
 ---
 
@@ -133,20 +165,13 @@ psql
 ```
 
 ```sql
-CREATE USER nextgenbank_app WITH PASSWORD 'changeit';
+CREATE USER nextgenbank_app WITH PASSWORD 'wasadmin@951';
 ALTER DATABASE nextgenbank OWNER TO nextgenbank_app;
 
 \c nextgenbank
 
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO nextgenbank_app;
 GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO nextgenbank_app;
-```
-
-Load schema:
-
-```bash
-psql -U postgres -d nextgenbank -f db/schema.sql
-psql -U postgres -d nextgenbank -f db/seed.sql
 ```
 
 ---
