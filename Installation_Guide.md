@@ -150,7 +150,7 @@ host    all             all             0.0.0.0/0          md5
 ```
 Restart postgressql DB
 ```
-sudo systemctl restart postgresql
+sudo systemctl restart postgresql-15
 ```
 
 
