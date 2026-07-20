@@ -126,7 +126,7 @@ systemctl status postgresql-15
 #### Allow Remote Host connect to DB
 1. Edit the "postgresql.conf" file in path "/var/lib/pgsql/data/postgresql.conf"
 ```
-sudo vim /var/lib/pgsql/data/postgresql.conf
+sudo vim /var/lib/pgsql/15/data/postgresql.conf
 ```
 ADD these Under connection settings
 ```
@@ -136,7 +136,7 @@ listen_addresses = '*'
 2. Edit the "pg_hba.conf" file in path "/var/lib/pgsql/data/pg_hba.conf"
 
 ```
-sudo vim /var/lib/pgsql/data/pg_hba.conf
+sudo vim /var/lib/pgsql/15/data/pg_hba.conf
 ```
 Edit IPV4 Local Connection Method from ident to md5 these lines 
 ```
