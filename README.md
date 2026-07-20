@@ -120,9 +120,9 @@ systemctl status postgresql-15
 Load schema.
 From your Deployment Server Load the Schema
 ```bash
-psql -U postgres -d nextgenbank -f db/schema.sql
+ psql -h db01.devops.com -p 5432 -U nextgenbank_app -d nextgenbank -f db/schema.sql
 
-psql -U postgres -d nextgenbank -f db/seed.sql
+ psql -h db01.devops.com -p 5432 -U nextgenbank_app -d nextgenbank -f db/seed.sql
 ```
 
 Default users
@@ -157,6 +157,8 @@ Download the PostgreSQL JDBC driver.
 Rename it to
 
 ```text
+wget https://jdbc.postgresql.org/download/postgresql-42.7.8.jar
+mv postgresql-42.7.8.jar postgresql.jar
 postgresql.jar
 ```
 
