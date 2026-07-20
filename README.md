@@ -102,44 +102,9 @@ psql --version
 
 ---
 
-
-# Create Postgresql Database
-
-Become postgres.
-
-```bash
-sudo su - postgres
-```
-
-Create database.
-
-```bash
-createdb nextgenbank
-```
-
-Open PostgreSQL.
-
-```bash
-psql
-```
-
-Execute.
-
-```sql
-CREATE USER nextgenbank_app
-WITH PASSWORD 'changeit';
-
-ALTER DATABASE nextgenbank OWNER TO nextgenbank_app;
-```
-
-Exit.
-
-```sql
-\q
-```
-
+# Load data to your DB
 Load schema.
-
+From your Deployment Server Load the Schema
 ```bash
 psql -U postgres -d nextgenbank -f db/schema.sql
 
