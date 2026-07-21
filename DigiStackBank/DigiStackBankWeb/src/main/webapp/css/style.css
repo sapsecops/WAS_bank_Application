@@ -1,0 +1,31 @@
+body{
+
+    background:#f2f6fc;
+
+}
+
+.card{
+
+    border-radius:10px;
+
+}
+
+.card-header{
+
+    background:#003366 !important;
+
+}
+
+.btn-primary{
+
+    background:#003366;
+
+    border:none;
+
+}
+
+.btn-primary:hover{
+
+    background:#0055aa;
+
+}

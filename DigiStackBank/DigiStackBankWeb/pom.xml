@@ -1,9 +1,1 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0">
-<modelVersion>4.0.0</modelVersion>
-<parent><groupId>com.digistack.bank</groupId><artifactId>DigiStackBank</artifactId><version>1.0.0</version></parent>
-<artifactId>DigiStackBankWeb</artifactId><packaging>war</packaging>
-<dependencies>
-<dependency><groupId>javax</groupId><artifactId>javaee-api</artifactId><scope>provided</scope></dependency>
-<dependency><groupId>com.digistack.bank</groupId><artifactId>DigiStackBankEJB</artifactId><version>${project.version}</version></dependency>
-<dependency><groupId>javax.servlet</groupId><artifactId>jstl</artifactId><version>1.2</version></dependency>
-</dependencies></project>
+<project></project>
