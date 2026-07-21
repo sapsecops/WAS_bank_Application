@@ -109,9 +109,9 @@ mvn -version
 # 6. Install PostgreSQL 15
 
 ```bash
-sudo dnf install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm
 
-sudo dnf -qy module disable postgresql
+sudo dnf -y module disable postgresql
+sudo dnf install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm
 
 sudo dnf install -y postgresql15-server postgresql15
 
@@ -126,7 +126,7 @@ systemctl status postgresql-15
 #### Allow Remote Host connect to DB
 1. Edit the "postgresql.conf" file in path "/var/lib/pgsql/data/postgresql.conf"
 ```
-sudo vim /var/lib/pgsql/data/postgresql.conf
+sudo vim /var/lib/pgsql/15/data/postgresql.conf
 ```
 ADD these Under connection settings
 ```
@@ -136,7 +136,7 @@ listen_addresses = '*'
 2. Edit the "pg_hba.conf" file in path "/var/lib/pgsql/data/pg_hba.conf"
 
 ```
-sudo vim /var/lib/pgsql/data/pg_hba.conf
+sudo vim /var/lib/pgsql/15/data/pg_hba.conf
 ```
 Edit IPV4 Local Connection Method from ident to md5 these lines 
 ```
@@ -150,7 +150,7 @@ host    all             all             0.0.0.0/0          md5
 ```
 Restart postgressql DB
 ```
-sudo systemctl restart postgresql
+sudo systemctl restart postgresql-15
 ```
 
 

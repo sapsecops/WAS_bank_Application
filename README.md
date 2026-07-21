@@ -101,14 +101,28 @@ psql --version
 ```
 
 ---
+# Install PostgreSQL Clint 
 
+```bash
+
+sudo dnf -y module disable postgresql
+sudo dnf install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm
+
+sudo dnf install -y postgresql15-server postgresql15
+
+sudo /usr/pgsql-15/bin/postgresql-15-setup initdb
+
+sudo systemctl enable postgresql-15
+sudo systemctl start postgresql-15
+systemctl status postgresql-15
+```
 # Load data to your DB
 Load schema.
 From your Deployment Server Load the Schema
 ```bash
-psql -U postgres -d nextgenbank -f db/schema.sql
+ psql -h db01.devops.com -p 5432 -U nextgenbank_app -d nextgenbank -f db/schema.sql
 
-psql -U postgres -d nextgenbank -f db/seed.sql
+ psql -h db01.devops.com -p 5432 -U nextgenbank_app -d nextgenbank -f db/seed.sql
 ```
 
 Default users
@@ -143,7 +157,8 @@ Download the PostgreSQL JDBC driver.
 Rename it to
 
 ```text
-postgresql.jar
+wget https://jdbc.postgresql.org/download/postgresql-42.2.29.jar
+mv postgresql-42.2.29.jar postgresql.jar
 ```
 
 Copy to
@@ -169,6 +184,9 @@ JDBC
     ↓
 JDBC Providers
 ```
+<img width="991" height="472" alt="image" src="https://github.com/user-attachments/assets/e60f69c8-7ff3-446a-b466-bb3b678c538d" />
+<img width="1134" height="402" alt="image" src="https://github.com/user-attachments/assets/9473c377-7e6f-49eb-adb4-6df829758060" />
+
 
 Create a PostgreSQL JDBC Provider.
 
@@ -182,7 +200,20 @@ Create a DataSource with:
 | Host      | localhost          |
 | Port      | 5432               |
 | Username  | nextgenbank_app    |
-| Password  | changeit           |
+| Password  | wasadmin@951           |
+<img width="1120" height="373" alt="image" src="https://github.com/user-attachments/assets/6d5421b4-cd21-4f74-9b96-56e4dcd27b01" />
+<img width="1135" height="364" alt="image" src="https://github.com/user-attachments/assets/fa6fb11b-a500-4ec8-acff-849ee57e2264" />
+<img width="1120" height="358" alt="image" src="https://github.com/user-attachments/assets/b2841c69-7a2c-413b-8c40-a90ecb54de09" />
+<img width="1126" height="439" alt="image" src="https://github.com/user-attachments/assets/12238aeb-0372-4e0d-8c4b-a32fbe9d1c22" />
+<img width="1011" height="297" alt="image" src="https://github.com/user-attachments/assets/f5837b7d-df82-45be-b9eb-42db929ac7fe" />
+<img width="529" height="375" alt="image" src="https://github.com/user-attachments/assets/6334e3f4-85a1-4747-aa95-27b29d355397" />
+<img width="1116" height="438" alt="image" src="https://github.com/user-attachments/assets/0e24bd9b-4bab-4fc1-8db2-8d64ebbe1de3" />
+<img width="1129" height="432" alt="image" src="https://github.com/user-attachments/assets/1a2bca9f-2d01-4357-bd02-a9fd0e6456f1" />
+
+<img width="1141" height="523" alt="image" src="https://github.com/user-attachments/assets/0376db22-8e73-4fc6-94ac-63269689d935" />
+<img width="1096" height="838" alt="image" src="https://github.com/user-attachments/assets/b5733fd8-3600-4fc5-a745-13a652e18eb6" />
+<img width="976" height="496" alt="image" src="https://github.com/user-attachments/assets/86565f37-0686-48fd-9f39-5b537e47490d" />
+
 
 Click **Test Connection**.
 
@@ -249,6 +280,7 @@ Save
 
 Start
 ```
+<img width="1075" height="559" alt="image" src="https://github.com/user-attachments/assets/6ee6f07f-4f11-4af7-974e-3ef502537265" />
 
 ---
 
