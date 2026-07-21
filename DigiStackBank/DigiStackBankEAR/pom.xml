@@ -1,0 +1,11 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+<modelVersion>4.0.0</modelVersion>
+<parent><groupId>com.digistack.bank</groupId><artifactId>DigiStackBank</artifactId><version>1.0.0</version></parent>
+<artifactId>DigiStackBankEAR</artifactId><packaging>ear</packaging>
+<dependencies>
+<dependency><groupId>com.digistack.bank</groupId><artifactId>DigiStackBankWeb</artifactId><version>${project.version}</version><type>war</type></dependency>
+<dependency><groupId>com.digistack.bank</groupId><artifactId>DigiStackBankEJB</artifactId><version>${project.version}</version><type>ejb</type></dependency>
+<dependency><groupId>com.digistack.bank</groupId><artifactId>DigiStackBankPersistence</artifactId><version>${project.version}</version></dependency>
+<dependency><groupId>com.digistack.bank</groupId><artifactId>DigiStackBankCommon</artifactId><version>${project.version}</version></dependency>
+</dependencies>
+</project>
