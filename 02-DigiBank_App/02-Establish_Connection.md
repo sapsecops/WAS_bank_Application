@@ -48,133 +48,61 @@ sudo mv postgresql-42.7.3.jar /apps/IBM/SharedLibs/postgresql/
 sudo chown wasadmin:wasgrp /apps/IBM/SharedLibs/postgresql/postgresql-42.7.3.jar
 ```
 # Establish Connection Between DB to Server-1 
-HERE we Establish Connection between Database to server-1 only, not at Profile level or Cell level or Cluater Level, its at server1 level
-Meaning Server-1 only communicate with DB 
-## Step:1 ===> Register It as a Shared Library 
-### Method-1 ==> using Admin console
-Open your browser:
-```
-https://dsb-dmgr.digistack.cloud:9043/ibm/console
-```
-Go to Shared Libraries
-```
-Environment
+## Create JDBC Provider and DataSource
+
+### Admin Console
+
+Navigate to
+
+```text
+Resources
     ↓
-Shared Libraries
+JDBC
+    ↓
+JDBC Providers
 ```
-At the top of the page, click Scope. and Select the application server where your application will run.
+For your lab, if you have a single server, you can use:
 ```
-Node=devdsbinnode01
-Server=server1
-```
-click on Apply
-
-#### Enter the Details
-```
-Name : PostgreSQLJDBCDriver
-Classpath : /apps/IBM/SharedLibs/postgresql/postgresql-42.5.4.jar
-```
-Leave all other fields at their defaults. and Click on "ok " and Click on "save"
-### Method-2 ==> using wasadmin
-1. Generate the file "register_Library.py"
-```
-vim register_Library.py
-```
-```
-node = AdminConfig.getid('/Node:devdsbinnode01/')
-server = AdminConfig.getid('/Node:devdsbinnode01/Server:server1/')
-
-libAttrs = [['name', 'PostgreSQLJDBCDriver'], ['classPath', '/apps/IBM/SharedLibs/postgresql/postgresql-42.5.4.jar']]
-sharedLib = AdminConfig.create('Library', server, libAttrs)
-
-AdminConfig.save()
-
-print "Shared Library created: " + str(sharedLib)
-```
-<img width="721" height="399" alt="image" src="https://github.com/user-attachments/assets/ac2c7d13-6525-4b5f-8989-4ead3142857a" />
-
-2. Launch wasadmin to execute the script
-```
-/apps/IBM/WebSphere/AppServer/profiles/devdsbinappserver01/bin/wsadmin.sh -lang jython -user wasadmin -password 'Wasadmin@951951'
-```
-## Step:2 ==> Associate the Shared Library with server1
-### Method-1 ==> using Admin console
-#### Add These DB Shared Library to the Server
-```
-Servers
-   ↓
-Server Types
-   ↓
-WebSphere application servers
-   ↓
-server1
-
+Node = your WebSphere node
+Server = your application server
 ```
 
-Open Class Loader Settings
-```
-Server Infrastructure
-
-↓
-
-Java and Process Management
-
-↓
-
-Class Loader
-```
-###### Create New Class Loader
-Click on 
+Click:
 ```
 New
 ```
-Leave the default option ==> click on "Ok"
 
-###### open the Newly create Classloader
-click on 
-```
-Shared Library References
-```
-##### Add New Shared Library
-Click on 
-```
-Add
-```
-Select 
-```
-PostgreSQLJDBCDriver
-```
-Click on "ok"
+### Select PostgreSQL JDBC provider
 
-Click on "Save"
+You may see fields such as:
+Create a PostgreSQL JDBC Provider.
 
-### Method-2 ==> using wasadmin
-1. Generate the file "attach_Library_server1.py"
+| Property  | Value                |
+| --------- | -------------------- |
+| Name      | DigiStackBankDS      |
+| JNDI Name | jdbc/DigiStackBankDS |
+| Database  | digistack_bank       |
+| Host      | 192.168.10.30        |
+| Port      | 5432                 |
+| Username  | digistack_app        |
+| Password  | wasadmin@951951      |
+
+
+### Configure the JDBC driver classpath
+
 ```
-vim attach_Library_server1.py
-```
-```
-server = AdminConfig.getid('/Node:devdsbinnode01/Server:server1/')
-sharedLib = AdminConfig.getid('/Library:PostgreSQLJDBCDriver/')
-
-classloader = AdminConfig.create('Classloader', server, [])
-
-libRefAttrs = [['libraryName', 'PostgreSQLJDBCDriver']]
-AdminConfig.create('LibraryRef', classloader, libRefAttrs)
-
-AdminConfig.save()
-
-print "Class loader created and library attached: " + str(classloader)
-```
-<img width="726" height="257" alt="image" src="https://github.com/user-attachments/assets/12cba630-4d87-4e49-94e2-486498da9da0" />
-
-2. Launch wasadmin to execute the script
-```
-/apps/IBM/WebSphere/AppServer/profiles/devdsbinappserver01/bin/wsadmin.sh -lang jython -user wasadmin -password 'Wasadmin@951951'
+ /apps/IBM/SharedLibs/postgresql/postgresql-42.7.3.jar
 ```
 
-## Step:3 ==> Restart the Server to reflect the ClassLoader Changes
+goto 
 ```
-/apps/IBM/WebSphere/AppServer/profiles/devdsbinappserver01/bin/stopServer.sh server1
-/apps/IBM/WebSphere/AppServer/profiles/devdsbinappserver01/bin/startServer.sh server1
+WebSphere
+   │
+   ▼
+JDBC Provider
+   │
+   └── Classpath
+          │
+          └── postgresql-42.x.x.jar
 ```
+Save & configure
