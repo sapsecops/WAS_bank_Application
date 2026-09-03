@@ -61,5 +61,5 @@ Expected result: Page displays: ==> "DB Read Successful: DigiStack Bank is live 
 2. Confirm the log entry
 On dsb-dmgr, run:
 ```
-cat /apps/IBM/WebSphere/AppServer/profiles/devdsbinappserver01/logs/server1/SystemOut.log
+grep "AppConfigTestServlet" /apps/IBM/WebSphere/AppServer/profiles/devdsbinappserver01/logs/server1/SystemOut.log
 ```
